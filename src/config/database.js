@@ -5,7 +5,7 @@ module.exports = {
   password: 'sefode12',
   database: 'gobarder',
   define: {
-    //Padronização de tabelas
+    //Padronização de nomenclatura de tabelas e nomes
     timestamps: true,
     underscored: true,
     underscoredALL: true,
