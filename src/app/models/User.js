@@ -15,7 +15,7 @@ class User extends Model {
         sequelize,
       }
     );
-      this.addHook('beforeSave', async user => { // isso tudo pra criptografar a senha tnc
+      this.addHook('beforeSave', async (user) => { // isso tudo pra criptografar a senha tnc
         if (user.password){
           user.password_hash = await bcrypt.hash(user.password, 8);
         }
@@ -23,6 +23,10 @@ class User extends Model {
 
       return this;
   }
+  checkPassword(password){
+    return bcrypt.compare(password, this.password_hash);
+  }
+
 }
 
 export default User;
