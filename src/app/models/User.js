@@ -14,12 +14,14 @@ class User extends Model {
       {
         sequelize
       }
-    );
+    );//Trecho de codigo que
+    // são executados de forma automáticas, baseadas em ações que acontece no model.
+    // beforeSave, beforeUpdate, beforeCreate - antes da ...
     this.addHook("beforeSave", async user => {
       // isso tudo pra criptografar a senha tnc
       if (user.password) {
-        user.password_hash = await bcrypt.hash(user.password, 8);
-      }
+        user.password_hash = await bcrypt.hash(user.password, 8); // Fazendo uma
+      }//verificação e criando um hash de força 8 e jogando pro banco.
     });
 
     return this;
@@ -31,8 +33,8 @@ class User extends Model {
   }
 
   checkPassword(password) {
-    return bcrypt.compare(password, this.password_hash);
-  }
+    return bcrypt.compare(password, this.password_hash); 
+  } 
 }
 
 export default User;
