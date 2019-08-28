@@ -7,6 +7,7 @@ import UserController from "./app/controllers/UserController";
 import SessionsController from "./app/controllers/SessionController";
 import FileController from "./app/controllers/FileController";
 import ProviderController from "./app/controllers/ProviderController";
+import ScheduleController from "./app/controllers/ScheduleController";
 
 import authMiddleware from "./app/Middleware/auth";
 
@@ -24,6 +25,9 @@ routes.get("/providers", ProviderController.index);// Listagem de providers - pr
 
 routes.post("/appointments", AppointmentController.store); //Criação de serviços
 routes.get("/appointments", AppointmentController.index); //Listagem de serviços
+
+routes.get("/schedule", ScheduleController.index); 
+
 
 routes.post("/files", upload.single("file"), FileController.store); //uploads de arquivos atraves do multer
 

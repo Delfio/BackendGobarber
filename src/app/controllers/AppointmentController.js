@@ -1,16 +1,31 @@
 import Appointment from '../models/Appointment';
 import * as Yup from 'yup';
 import User from '../models/User';
+import File from '../models/File';
 import { startOfHour, parseISO, isBefore } from 'date-fns';
+
+  /**
+   * Listagem de serviços de acordo com o token do usuario Não provider, logado!
+   * O req.body.userId tem que ser um user não logado! para o index
+   */
 
 class AppointmentController {
   async index(req, res){
+    const { page = 1 } = req.query;
+
     const appointment = await Appointment.findAll({
       where:{ user_id: req.userId, canceled_at: null },
       order:['date'],
+      attributes: ['id', 'date'],
+      limit:20,
+      offset: (page - 1) * 20,
       include: [
         {
-           model: User, as: "provider_id"
+           model: User, as: "prodiver", attributes: ['id', 'name'],
+           include: [{
+             model: File, as: 'avatar',
+             attributes:['id','path','url']
+           }]
         }
       ]
     });
