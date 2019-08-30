@@ -2,9 +2,11 @@ import Appointment from '../models/Appointment';
 import * as Yup from 'yup';
 import User from '../models/User';
 import File from '../models/File';
-import { startOfHour, parseISO, isBefore, format } from 'date-fns';
+import { startOfHour, parseISO, isBefore, format, subHours } from 'date-fns';
 import pt from 'date-fns/locale/pt-BR'
 import Notification from '../schemas/Notification';
+
+import Mail from '../../lib/Mail';
 
   /**
    * Listagem de serviços de acordo com o token do usuario Não provider, logado!
@@ -57,6 +59,14 @@ class AppointmentController {
     if(!checkIsProvider){
       return res.status(401).json({ error: 'Não autorizado a criar registro de agendamento'})
     }
+    
+    /**
+     * Um provider não pode marcar serviços para ele mesmo!
+     */
+    
+    if(!(req.userId != provider_id)){
+      return res.status(401).json({ error: 'testetstestes'})
+    }
 
     const hourStart = startOfHour(parseISO(date));
 
@@ -104,6 +114,40 @@ class AppointmentController {
 
     return res.json(appointment);
   }
-}
 
+  async delete(req, res){
+    const appointment = await Appointment.findByPk(req.params.id, {
+      include: [{
+        model: User,
+        as: 'provider',
+        attributes: ['name', 'email'],
+      }]
+    });
+
+    if(appointment.user_id !== req.userId){
+      return res.status(401).json({
+        error: "Você não tem permissão para cancelar!"
+      });
+    };
+
+    const dateWithSub =subHours(appointment.date, 2);
+    if(isBefore(dateWithSub, new Date())){
+      return res.status(401).json({
+        error: 'Você não pode cancelar serviços com menos de 2 horas!',
+      })
+    }
+
+    appointment.canceled_at = new Date();
+
+    await appointment.save();
+
+    await Mail.sendMail({
+      to: `${appointment.provider.name} <${appointment.provider.email}>`,
+      subject: 'Agendamento Cancelado',
+      text: 'Você tem um novo cancelamento!',
+    })
+
+    return res.json(appointment)
+  }
+}
 export default new AppointmentController();
