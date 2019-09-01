@@ -1,9 +1,11 @@
+require ('dotenv').config();
+
 module.exports = {
   dialect: 'postgres',
-  username: 'postgres',
-  host: '192.168.99.100',
-  password: 'sefode12',
-  database: 'gobarder',
+  host: process.env.DB_HOST,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
   define: {
     //Padronização de nomenclatura de tabelas e nomes
     timestamps: true,

@@ -9,6 +9,8 @@ import FileController from "./app/controllers/FileController";
 import ProviderController from "./app/controllers/ProviderController";
 import ScheduleController from "./app/controllers/ScheduleController";
 import NotificationController from "./app/controllers/NotificationController";
+import AvailableController from "./app/controllers/AvailableController";
+
 
 import authMiddleware from "./app/Middleware/auth";
 
@@ -23,6 +25,7 @@ routes.use(authMiddleware); // Todas as rotas a partir daqui, terão que passar 
 routes.put("/users", UserController.update);// Update de usúarios
 
 routes.get("/providers", ProviderController.index);// Listagem de providers - prestadores de serviços
+routes.get("/providers/:providerId/available", AvailableController.index);// Listagem de horarios disponiveis
 
 routes.post("/appointments", AppointmentController.store); //Criação de serviços
 routes.get("/appointments", AppointmentController.index); //Listagem de serviços

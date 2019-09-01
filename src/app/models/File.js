@@ -10,7 +10,7 @@ class File extends Model {
           type: Sequelize.VIRTUAL,
           get() {
             // tem que permitir o navegador acessar a imagem sem precisar se autenticar! "app.js"
-            return `http://localhost:3333/files/${this.path}`;
+            return `${process.env.APP_URL}/files/${this.path}`;
           }
         }
       },

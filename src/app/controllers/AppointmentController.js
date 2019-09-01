@@ -6,7 +6,8 @@ import { startOfHour, parseISO, isBefore, format, subHours } from 'date-fns';
 import pt from 'date-fns/locale/pt-BR'
 import Notification from '../schemas/Notification';
 
-import Mail from '../../lib/Mail';
+import CancellationMail from '../jobs/CancellationMail';
+import Queue from '../../lib/Queue';
 
   /**
    * Listagem de serviços de acordo com o token do usuario Não provider, logado!
@@ -20,12 +21,12 @@ class AppointmentController {
     const appointment = await Appointment.findAll({
       where:{ user_id: req.userId, canceled_at: null },
       order:['date'],
-      attributes: ['id', 'date'],
+      attributes: ['id', 'date', 'past', 'cancelable'],
       limit:20,
       offset: (page - 1) * 20,
       include: [
         {
-           model: User, as: "prodiver", attributes: ['id', 'name'],
+           model: User, as: "provider", attributes: ['id', 'name'],
            include: [{
              model: File, as: 'avatar',
              attributes:['id','path','url']
@@ -99,6 +100,7 @@ class AppointmentController {
     })
     /**
      * Notificar o prestador de serviço, - mongo db
+     * Formatando a data
      */
     const user = await User.findByPk(req.userId);
     const formattedDate = format(
@@ -121,6 +123,10 @@ class AppointmentController {
         model: User,
         as: 'provider',
         attributes: ['name', 'email'],
+      },{
+        model: User,
+        as: 'user',
+        attributes: ['name'],
       }]
     });
 
@@ -141,11 +147,9 @@ class AppointmentController {
 
     await appointment.save();
 
-    await Mail.sendMail({
-      to: `${appointment.provider.name} <${appointment.provider.email}>`,
-      subject: 'Agendamento Cancelado',
-      text: 'Você tem um novo cancelamento!',
-    })
+    await Queue.add(CancellationMail.key, {
+      appointment,
+    });
 
     return res.json(appointment)
   }
