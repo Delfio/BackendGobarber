@@ -3,6 +3,7 @@ import 'dotenv/config';
 
 import express from "express";
 import Path from "path";
+import cors from "cors";
 import Youch from 'youch';
 import * as Sentry from '@sentry/node';
 import 'express-async-errors';
@@ -25,6 +26,8 @@ class App {
 
   middlewares() {
     this.server.use(Sentry.Handlers.requestHandler());
+    //passar o end ip da aplicação que vai acessar
+    this.server.use(cors());
     this.server.use(express.json());
     this.server.use(
       // PERMITIR QUE O NAVEGADOR EXIBA AS IMAGENS GERADAS PELO LINK SEM NECESSIDADE DE "AUTH"
